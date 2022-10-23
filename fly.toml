@@ -1,0 +1,19 @@
+# fly.toml file generated for autumn-butterfly-8845 on 2022-10-23T16:13:17Z
+
+app = "autumn-butterfly-8845"
+
+[experimental]
+  enable_consul = true
+
+[[services]]
+  internal_port = 8080
+  protocol = "tcp"
+
+  [[services.ports]]
+    force_https = true
+    handlers = ["http"]
+    port = 80
+
+  [[services.ports]]
+    handlers = ["tls", "http"]
+    port = "443"

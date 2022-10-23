@@ -3,7 +3,7 @@ FROM flyio/litefs:pr-109 AS litefs
 
 
 # Build our application using a Go builder.
-FROM golang:1.19 AS builder
+FROM golang:1.16 AS builder
 WORKDIR /src/litefs-example
 COPY . .
 RUN go build -ldflags "-s -w -extldflags '-static'" -tags osusergo,netgo -o /usr/local/bin/litefs-example ./cmd/litefs-example

@@ -110,10 +110,24 @@ func handleIndex(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// If this node is not primary, look up and redirect to the current primary.
+	primaryFilename := filepath.Join(filepath.Dir(*dsn), ".primary")
+	primary, err := os.ReadFile(primaryFilename)
+	if err != nil && !os.IsNotExist(err) {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	primaryStr := string(primary)
+	if primaryStr == "" {
+		primaryStr = os.Getenv("FLY_ALLOC_ID")
+	}
+
 	// Render the list to either text or HTML.
 	tmplData := TemplateData{
-		Region:  os.Getenv("FLY_REGION"),
-		Persons: persons,
+		Region:          os.Getenv("FLY_REGION"),
+		Instance:        os.Getenv("FLY_ALLOC_ID"),
+		PrimaryInstance: primaryStr,
+		Persons:         persons,
 	}
 
 	switch r.Header.Get("accept") {
@@ -167,8 +181,10 @@ func handleGenerate(w http.ResponseWriter, r *http.Request) {
 }
 
 type TemplateData struct {
-	Region  string
-	Persons []*Person
+	Region          string
+	Persons         []*Person
+	Instance        string
+	PrimaryInstance string
 }
 
 type Person struct {
